@@ -5,7 +5,7 @@ import Settings
 import os
 import sys
 import numpy as np
-from bert_serving.client import BertClient
+#from bert_serving.client import BertClient
 
 class DataSet:
     def __init__(self):
@@ -47,27 +47,44 @@ class DataSet:
         #        fout.write(sen)
         #    for sen in self.testdata['A']:
         #        fout.write(sen)
+
+        with open(self.config.questionfile,'w+') as fout:
+            for sen in self.traindata['Q']:
+                fout.write(sen+'\n')
+            for sen in self.testdata['Q']:
+                fout.write(sen+'\n')
+
+        with open(self.config.answerfile,'w+') as fout:
+            for sen in self.traindata['A']:
+                fout.write(sen+'\n')
+            for sen in self.testdata['A']:
+                fout.write(sen+'\n')
+
         #self.parseChineseWords()
-        with open(self.config.tmpwordfile,'r+') as fin:
-            line=fin.read()
-            words=line.strip().split(' ')
-            for word in words:
-                if word not in wordlist:
-                    wordlist.append(word)
-        wordlist.insert(0,'NA')
+        #with open(self.config.tmpwordfile,'r+') as fin:
+        #    line=fin.read()
+        #    words=line.strip().split(' ')
+        #    for word in words:
+        #        if word not in wordlist:
+        #            wordlist.append(word)
+        #wordlist.insert(0,'NA')
         #with open(self.config.word2idfile,'w+') as fout:
         #    for i in range(len(wordlist)):
         #        fout.write(wordlist[i]+' '+str(i)+'\n')
-        bc = BertClient()
-        for word in wordlist:
-            wordembed=bc.encode([word])
-            wordembeds.append(wordembed[0])
-        wordembeds=np.array(wordembeds)
-        np.save(self.config.wordembedfile,wordembeds)
+        #bc = BertClient()
+        #for word in wordlist:
+        #    wordembed=bc.encode([word])
+        #    wordembeds.append(wordembed[0])
+        #wordembeds=np.array(wordembeds)
+        #np.save(self.config.wordembedfile,wordembeds)
 
     def parseChineseWords(self):
         cmd='java -Xmx1024m -Dfile.encoding=UTF-8 -classpath "/data/fnlp/fnlp-core/target/fnlp-core-2.1-SNAPSHOT.jar:libs/trove4j-3.0.3.jar:libs/commons-cli-1.2.jar" org.fnlp.nlp.cn.tag.CWSTagger -f models/seg.m ' + self.config.allsenfile + ' ' + self.config.tmpwordfile
         os.system(cmd)
+
+    def calculateQALength(self):
+        max_question_length=-1
+        max_answer_length=-1
 
 if __name__=='__main__':
     data=DataSet()
