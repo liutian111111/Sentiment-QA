@@ -16,6 +16,9 @@ class Config(object):
         self.tmpwordfile='./data/fnlp/tmpwords.txt'
         self.word2idfile='./data/word2id.txt'
         self.wordembedfile='./data/wordembed.npy'
+        self.modelsavepath='./model/'
+        self.bestwriter='./out/best_result.txt'
+        self.temp_result='./out/temp_result.txt'
 
         self.learning_rate=0.001
         self.dropout_rate=0.1

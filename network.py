@@ -16,7 +16,7 @@ class Attention:
         #question encoder
         ###
 
-        enc_q=tf.nn.embedding_lookup(wordembedding,self.input_question)
+        enc_q=tf.cast(tf.nn.embedding_lookup(wordembedding,self.input_question),tf.float32)
         if is_training:
             enc_q=tf.layers.dropout(enc_q,rate=self.config.dropout_rate)
         for i in range(self.config.q_num_blocks):
@@ -37,7 +37,7 @@ class Attention:
         #answer encoder
         ###
 
-        enc_a=tf.nn.embedding_lookup(wordembedding,self.input_answer)
+        enc_a=tf.cast(tf.nn.embedding_lookup(wordembedding,self.input_answer),tf.float32)
         if is_training:
             enc_a=tf.layers.dropout(enc_a,rate=self.config.dropout_rate)
         for i in range(self.config.a_num_blocks):
@@ -77,8 +77,8 @@ class Attention:
         attention_wm_r=tf.get_variable('attention_wm_r',[self.config.hidden_size,1])
         attention_wm_w=tf.get_variable('attention_wm_w',[self.config.hidden_size,self.config.hidden_size])
         attention_wm_u=tf.get_variable('attention_wm_u',[self.config.hidden_size,self.config.hidden_size])
-        enc_out=tf.reshape(tf.matmul(tf.nn.softmax(tf.reshape(tf.matmul(tf.multiply(tf.matmul(enc_qa_out,attention_wm_w)
-            ,tf.nn.sigmoid(tf.matmul(enc_qa_out,attention_wm_u))),attention_wm_r),[self.config.batch_size,1,self.config.max_question_length])),
+        enc_out=tf.reshape(tf.matmul(tf.nn.softmax(tf.reshape(tf.matmul(tf.multiply(tf.matmul(enc_qa_out,attention_wm_w) \
+            ,tf.nn.sigmoid(tf.matmul(enc_qa_out,attention_wm_u))),attention_wm_r),[self.config.batch_size,1,self.config.max_question_length])) \
             ,enc_qa_out),[self.config.batch_size,self.config.hidden_size])
 
         ###
@@ -88,7 +88,11 @@ class Attention:
         answer_embedding=tf.get_variable('answer_embedding',[self.config.hidden_size,self.config.class_num])
         sen_a=tf.get_variable('sen_a',[self.config.class_num])
         sen_a_out=tf.add(tf.matmul(tf.reshape(tf.tanh(enc_out),[self.config.batch_size,self.config.hidden_size]),answer_embedding), sen_a)
+        self.prob= tf.nn.softmax(sen_a_out)
         self.loss= tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(logits=sen_a_out, labels=output_label))
+        self.l2_loss = tf.contrib.layers.apply_regularization(regularizer=tf.contrib.layers.l2_regularizer(0.0001),
+                                                              weights_list=tf.trainable_variables())
+        self.total_loss=self.loss+self.l2_loss
 
 
 
