@@ -13,7 +13,7 @@ os.environ['CUDA_VISIBLE_DEVICES']='6,7'
 
 FLAGS=tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_boolean('train', True, 'set True to train')
+tf.app.flags.DEFINE_boolean('train', False, 'set True to train')
 
 def evaluation(y_pred,y_true):
     f1_s=f1_score(y_true,y_pred,average='macro')
@@ -54,7 +54,7 @@ def test(sess,setting):
         with tf.variable_scope("model"):
             mtest = Attention(is_training=FLAGS.train, wordembedding=wordembedding)
         saver = tf.train.Saver()
-        testlist=range(100,4800,100)
+        testlist=range(100,48000,100)
         best_model_iter=-1
         best_model_f1=-1
         best_model_acc=-1
